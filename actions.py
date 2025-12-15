@@ -53,10 +53,28 @@ class Actions:
             print(MSG1.format(command_word=command_word))
             return False
 
-        # Get the direction from the list of words.
-        direction = list_of_words[1]
-        # Move the player in the direction specified by the parameter.
-        player.move(direction)
+        # Get direction from list_of_words
+        direction = list_of_words[1].strip()
+
+        # direction ignore case and full names
+        dir_map = {'n': 'N', 'north': 'N', 'nord': 'N',
+            'e': 'E', 'east': 'E', 'est': 'E',
+            's': 'S', 'south': 'S', 'sud': 'S',
+            'o': 'O', 'west': 'O', 'ouest': 'O'}
+
+        key = direction.lower()
+        dir_normalize = dir_map.get(key)
+
+        # If not in map, check if user provided single-letter uppercase already.
+        if dir_normalize is None:
+            if direction.upper() in ('N', 'E', 'S', 'O'):
+                dir_normalize = direction.upper()
+            else:
+                print(f"\nDirection '{direction}' inconnue. Utilisez N/E/S/O (ou nord/est/sud/ouest).\n")
+                return False
+
+        # Move the player using the canonical single-letter direction.
+        player.move(dir_normalize)
         return True
 
     def quit(game, list_of_words, number_of_parameters):
@@ -137,3 +155,4 @@ class Actions:
             print("\t- " + str(command))
         print()
         return True
+

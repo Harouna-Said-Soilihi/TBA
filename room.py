@@ -9,7 +9,7 @@ class Room:
     également des méthodes facilitant l’affichage des informations
     concernant la pièce et la navigation entre les lieux.
 
-    Attributs : 
+    Attributs :
     name : str
         Le nom de la pièce.
     description : str
@@ -40,24 +40,24 @@ class Room:
     >>> "est" in r1.get_exit_string()
     True
     """
-    # Define the constructor. 
+
+    # Define the constructor.
     def __init__(self, name, description):
         self.name = name
         self.description = description
         self.exits = {}
-    
+
     # Define the get_exit method.
     def get_exit(self, direction):
-
         # Return the room in the given direction if it exists.
         if direction in self.exits.keys():
             return self.exits[direction]
         else:
             return None
-    
+
     # Return a string describing the room's exits.
     def get_exit_string(self):
-        exit_string = "Sorties: " 
+        exit_string = "Sorties: "
         for exit in self.exits.keys():
             if self.exits.get(exit) is not None:
                 exit_string += exit + ", "
