@@ -1,5 +1,4 @@
 # Description: Game class
-
 # Import modules
 
 from room import Room
@@ -43,20 +42,29 @@ class Game:
         castle = Room("Castle", "un énorme château fort avec des douves et un pont levis. Sur les tours, des flèches en or massif.")
         self.rooms.append(castle)
 
+        # New vertical rooms
+        sous_sol = Room("Sous_sol", "un sous-sol humide et sombre. Une odeur inquiétante flotte dans l'air.")
+        self.rooms.append(sous_sol)
+        tower_top = Room("Tower-Top", "au sommet de la tour, vue à couper le souffle sur le royaume.")
+        self.rooms.append(tower_top)
+
         # Create exits for rooms
 
-        forest.exits = {"N" : cave, "E" : None, "S" : castle, "O" : None}
-        tower.exits = {"N" : cottage, "E" : None, "S" : None, "O" : None}
-        cave.exits = {"N" : None, "E" : cottage, "S" : forest, "O" : None}
-        cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave}
-        swamp.exits = {"N" : tower, "E" : None, "S" : None, "O" : castle}
-        castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None}
+        forest.exits = {"N" : cave, "E" : None, "S" : castle, "O" : None, "U": None, "D": None}
+        tower.exits = {"N" : cottage, "E" : None, "S" : None, "O" : forest, "U": tower_top, "D": None}
+        cave.exits = {"N" : None, "E" : cottage, "S" : forest, "O" : None, "U": None, "D": None}
+        cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave, "U": None, "D": sous_sol}
+        swamp.exits = {"N" : tower, "E" : None, "S" : None, "O" : castle, "U": None, "D": None}
+        castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None, "U": None, "D": None}
+        sous_sol.exits = {"N": None, "E": None, "S": None, "O": None, "U": cottage, "D": None}
+        tower_top.exits = {"N": None, "E": None, "S": None, "O": None, "U": None, "D": tower}
 
         # Setup player and starting room
 
         self.player = Player(input("\nEntrez votre nom: "))
         self.player.current_room = swamp
-
+        # Construire l'ensemble des directions valides présentes dans la map 
+        self.valid_directions = set().union(*(room.exits.keys() for room in self.rooms))
     # Play the game
     def play(self):
         self.setup()
