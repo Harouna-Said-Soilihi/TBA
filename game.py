@@ -43,8 +43,8 @@ class Game:
         self.rooms.append(castle)
 
         # New vertical rooms
-        sous_sol = Room("Sous_sol", "un sous-sol humide et sombre. Une odeur inquiétante flotte dans l'air.")
-        self.rooms.append(sous_sol)
+        basement = Room("Sous_sol", "un sous-sol humide et sombre. Une odeur inquiétante flotte dans l'air.")
+        self.rooms.append(basement)
         tower_top = Room("Tower-Top", "au sommet de la tour, vue à couper le souffle sur le royaume.")
         self.rooms.append(tower_top)
 
@@ -53,10 +53,10 @@ class Game:
         forest.exits = {"N" : cave, "E" : None, "S" : castle, "O" : None, "U": None, "D": None}
         tower.exits = {"N" : cottage, "E" : None, "S" : None, "O" : forest, "U": tower_top, "D": None}
         cave.exits = {"N" : None, "E" : cottage, "S" : forest, "O" : None, "U": None, "D": None}
-        cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave, "U": None, "D": sous_sol}
+        cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave, "U": None, "D": basement}
         swamp.exits = {"N" : tower, "E" : None, "S" : None, "O" : castle, "U": None, "D": None}
         castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None, "U": None, "D": None}
-        sous_sol.exits = {"N": None, "E": None, "S": None, "O": None, "U": cottage, "D": None}
+        basement.exits = {"N": None, "E": None, "S": None, "O": None, "U": cottage, "D": None}
         tower_top.exits = {"N": None, "E": None, "S": None, "O": None, "U": None, "D": tower}
 
         # Setup player and starting room
@@ -65,10 +65,14 @@ class Game:
         self.player.current_room = swamp
         # Construire l'ensemble des directions valides présentes dans la map 
         self.valid_directions = set().union(*(room.exits.keys() for room in self.rooms))
+
+        # Setup 'back' command
+        back = Command("back", " : revenir à la pièce précédente visitée", Actions.back, 0)
+        self.commands["back"] = back
     # Play the game
     def play(self):
         self.setup()
-        self.print_welcome()
+        self.print_welcome() 
         # Loop until the game is finished
         while not self.finished:
             # Get the command from the player

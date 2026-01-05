@@ -60,17 +60,19 @@ class Actions:
         dir_map = {'n': 'N', 'north': 'N', 'nord': 'N',
             'e': 'E', 'east': 'E', 'est': 'E',
             's': 'S', 'south': 'S', 'sud': 'S',
-            'o': 'O', 'west': 'O', 'ouest': 'O'}
+            'o': 'O', 'west': 'O', 'ouest': 'O',
+            'u': 'U', 'up':'u', 
+            'd': 'D', 'down':'d'}
 
         key = direction.lower()
         dir_normalize = dir_map.get(key)
 
         # If not in map, check if user provided single-letter uppercase already.
         if dir_normalize is None:
-            if direction.upper() in ('N', 'E', 'S', 'O'):
+            if direction.upper() in ('N', 'E', 'S', 'O','U','D'):
                 dir_normalize = direction.upper()
             else:
-                print(f"\nDirection '{direction}' inconnue. Utilisez N/E/S/O (ou nord/est/sud/ouest).\n")
+                print(f"\nDirection '{direction}' non reconnue.\n")
                 return False
 
         # Move the player using the canonical single-letter direction.
@@ -155,4 +157,30 @@ class Actions:
             print("\t- " + str(command))
         print()
         return True
+        
+    def back(game, list_of_words, number_of_parameters):
+        """
+        Retourne à la pièce précédente visitée par le joueur.
 
+        Si l'historique des pièces visitées est vide, affiche un message
+        d'erreur et renvoie False. Sinon, met à jour la pièce actuelle
+        du joueur avec la dernière pièce de l'historique et affiche sa
+        description complète.
+        """
+        if len(list_of_words) != number_of_parameters + 1:
+            print("\nCommande incorrecte.\n")
+            return False
+
+        # verifie si un historique des pièces visitées existe
+        player = game.player
+        if not player.history:
+            print("\nAucune pièce précédente dans l'historique !\n")
+            return False
+
+        # Récupère la dernière pièce visitée depuis l'historique.
+        previous_room = player.history.pop()
+        
+        # Met à jour la pièce actuelle du joueur.
+        player.current_room = previous_room
+        print(player.current_room.get_long_description())
+        return True
