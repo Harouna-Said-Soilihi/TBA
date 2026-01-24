@@ -26,6 +26,14 @@ class Game:
         self.commands["quit"] = quit
         go = Command("go", " <direction> : se déplacer dans une direction cardinale (N, E, S, O)", Actions.go, 1)
         self.commands["go"] = go
+        check = Command("check", " : afficher l'inventaire du joueur", Actions.check, 0)
+        self.commands["check"] = check
+        look = Command("look", " : regarder autour de soi dans la pièce actuelle", Actions.look, 0)
+        self.commands["look"] = look
+        take = Command("take", " <nom_objet> : prendre un objet dans la pièce actuelle", Actions.take, 1)
+        self.commands["take"] = take
+        drop = Command("drop", " <nom_objet> : déposer un objet de l'inventaire dans la pièce actuelle", Actions.drop, 1)
+        self.commands["drop"] = drop
         
         # Setup rooms
 
@@ -58,6 +66,10 @@ class Game:
         castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None, "U": None, "D": None}
         basement.exits = {"N": None, "E": None, "S": None, "O": None, "U": cottage, "D": None}
         tower_top.exits = {"N": None, "E": None, "S": None, "O": None, "U": None, "D": tower}
+
+        # Place some items in rooms
+        forest.inventory["Décoction de souci"] = {"description": "Guérit de 60PV en une minute","weight": 0.5}
+        cave.inventory["kit de crochetage"] = {"description": "vous permettra d'ouvrir tout un tas de coffres et de vous incruster dans des reserves d'équipement ou de nourriture","weight": 0.1}
 
         # Setup player and starting room
 
