@@ -42,6 +42,8 @@ class Player():
     def __init__(self, name):
         self.name = name
         self.current_room = None
+        self.history = []
+        self.inventory = {}
     
     # Define the move method.
     def move(self, direction):
@@ -54,9 +56,28 @@ class Player():
             print("\nAucune porte dans cette direction !\n")
             return False
         
+        # sauvegarde la pièce actuelle dans l'historique avant de se déplacer
+        self.history.append(self.current_room)
+        
         # Set the current room to the next room.
         self.current_room = next_room
         print(self.current_room.get_long_description())
         return True
+
+    def add_item(self, name, description, weight):
+        self.inventory[name] = {"description": description,"weight": weight}
+
+    def get_inventory(self):
+        if not self.inventory:
+            return "Votre inventaire est vide."
+
+        result = "Vous disposez des items suivants :\n"
+
+        for name, infos in self.inventory.items():
+            result += f"    - {name} : {infos['description']} ({infos['weight']} kg)\n"
+
+        return result
+    
+
 
     
