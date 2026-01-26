@@ -1,8 +1,8 @@
 # TBA
 
-Ce repo contient la première version (minimale) du jeu d’aventure TBA.
+Ce repo contient la version finale du jeu d’aventure TBA.
 
-Les lieux sont au nombre de 6. Il n'y a pas encore d’objets ni de personnages autres que le joueur et très peu d’interactions. Cette première version sert de base à ce qui va suivre, et sera améliorée au fur et à mesure.
+Ce projet est un moteur de RPG textuel systémique en Python où un gestionnaire de quêtes dynamique réagit en temps réel aux interactions libres comme le vol, le crochetage ou la négociation. L'architecture propose un monde ouvert modulaire reliant des zones sociales à un donjon vertical
 
 
 ## Structuration
