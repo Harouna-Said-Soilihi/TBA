@@ -42,6 +42,8 @@ class Player():
     def __init__(self, name):
         self.name = name
         self.current_room = None
+        self.quest_manager = QuestManager()
+        self.rewards = []  # List to store earned rewards
 
         # historique des pièces visitées
         self.history = []

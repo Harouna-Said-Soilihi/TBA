@@ -9,6 +9,7 @@ from command import Command
 from actions import Actions
 from item import Beamer
 from character import Character
+from quest import Quest
 
 class Game:
 
@@ -46,6 +47,10 @@ class Game:
         self.commands["talk"] = talk
         rest = Command("rest", "permet de récupérer de l'endurance", Actions.rest, 0)
         self.commands["rest"] = rest
+        self.commands["quests"] = Command("quests", " : afficher la liste des quêtes", Actions.quests, 0)
+        self.commands["quest"] = Command("quest", " <titre> : détails d'une quête", Actions.quest, 1)
+        self.commands["activate"] = Command("activate", " <titre> : activer une quête", Actions.activate, 1)
+        self.commands["rewards"] = Command("rewards", " : afficher vos récompenses", Actions.rewards, 0)
         
         # Setup rooms
 
@@ -100,6 +105,34 @@ class Game:
         gandalf = Character("Gandalf", "un magicien blanc", forest, ["Je suis Gandalf", "Abracadabra !"])
         # Ajout du PNJ dans la pièce
         forest.characters[gandalf.name] = gandalf
+
+        def _setup_quests(self):
+        """Initialize all quests."""
+        exploration_quest = Quest(
+            title="Grand Explorateur",
+            description="Explorez tous les lieux de ce monde mystérieux.",
+            objectives=["Visiter Forest", "Visiter Tower", "Visiter Cave", "Visiter Cottage", "Visiter Castle"],
+            reward="Titre de Grand Explorateur"
+        )
+
+        travel_quest = Quest(
+            title="Grand Voyageur",
+            description="Déplacez-vous 10 fois entre les lieux.",
+            objectives=["Se déplacer 10 fois"],
+            reward="Bottes de voyageur"
+        )
+
+        discovery_quest = Quest(
+            title="Découvreur de Secrets",
+            description="Découvrez les trois lieux les plus mystérieux.",
+            objectives=["Visiter Cave", "Visiter Tower", "Visiter Castle"],
+            reward="Clé dorée"
+        )
+
+        # Add quests to player's quest manager
+        self.player.quest_manager.add_quest(exploration_quest)
+        self.player.quest_manager.add_quest(travel_quest)
+        self.player.quest_manager.add_quest(discovery_quest)
 
     # Play the game
     def play(self):
