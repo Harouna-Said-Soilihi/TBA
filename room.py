@@ -47,6 +47,7 @@ class Room:
         self.description = description
         self.exits = {}
         self.inventory = {}
+        self.characters = {}
 
     # Define the get_exit method.
     def get_exit(self, direction):
@@ -81,5 +82,22 @@ class Room:
         return result
     def look(self):
         msg = f"\n{self.description}\n"
-        msg += self.get_inventory()
+        
+        # Affichage des items
+        if self.inventory:
+            msg += "On voit :\n"
+            for name, item in self.inventory.items():
+                d = item.get('description', '') if isinstance(item, dict) else item.description
+                w = item.get('weight', 0) if isinstance(item, dict) else item.weight
+                msg += f"    - {name} : {d} ({w} kg)\n"
+        
+        # Affichage des PNJ
+        if self.characters:
+            msg += "Personnages présents :\n"
+            for char in self.characters.values():
+                msg += f"    - {char}\n"
+        
+        if not self.inventory and not self.characters:
+            msg += "Il n'y a rien ni personne ici."
+            
         return msg

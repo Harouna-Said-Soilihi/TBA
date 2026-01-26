@@ -45,8 +45,9 @@ class Player():
 
         # historique des pièces visitées
         self.history = []
-        self.history = []
         self.inventory = {}
+        self.max_weight = 20.0 
+        self.stamina = 100.0
     
     # Define the move method.
     def move(self, direction):
@@ -58,31 +59,51 @@ class Player():
         if next_room is None:
             print("\nAucune porte dans cette direction !\n")
             return False
+
+        #Logique de fatigue en fonction du poids transporté
+        weight = self.get_current_weight()
+        cost = 10 + (weight * 2)
         
+        if self.stamina < cost:
+            print(f"\n[FATIGUE] Vous êtes trop épuisé pour vous déplacer vers {direction}.")
+            print(f"Endurance actuelle : {round(self.stamina, 1)} | Coût requis : {round(cost, 1)}")
+            print("Essayez de 'drop' (déposer) des objets ou de vous reposer.\n")
+            return False
+
+        self.stamina -= cost
+
         # sauvegarde la pièce actuelle dans l'historique avant de se déplacer
         self.history.append(self.current_room)
         
         # Set the current room to the next room.
         self.current_room = next_room
+        print(f"\n(Endurance restante : {round(self.stamina, 1)}%)")
         print(self.current_room.get_long_description())
         return True
-
-
-
     
     def add_item(self, name, description, weight):
         self.inventory[name] = {"description": description,"weight": weight}
 
     def get_inventory(self):
         if not self.inventory:
-            return "Votre inventaire est vide."
+            return f"Votre inventaire vide | Charge : 0/{self.max_weight} kg | Endurance : {self.stamina}%"
 
-        result = "Vous disposez des items suivants :\n"
+        result = f"Vous disposez des items suivant (Charge : {self.get_current_weight()}/{self.max_weight} kg | Endurance : {self.stamina}%)\n"
 
         for name, infos in self.inventory.items():
             result += f"    - {name} : {infos['description']} ({infos['weight']} kg)\n"
 
         return result
+    
+    def get_current_weight(self):
+        total = 0.0
+        for item in self.inventory.values():
+            # Si c'est un objet 
+            if hasattr(item, 'weight'):
+                total += item.weight
+            elif isinstance(item, dict):
+                total += item.get('weight', 0)
+        return round(total, 2)
     
 
 

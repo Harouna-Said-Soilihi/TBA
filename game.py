@@ -1,10 +1,14 @@
 # Description: Game class
 # Import modules
 
+DEBUG = True # À mettre à False pour la version finale
+
 from room import Room
 from player import Player
 from command import Command
 from actions import Actions
+from item import Beamer
+from character import Character
 
 class Game:
 
@@ -34,6 +38,14 @@ class Game:
         self.commands["take"] = take
         drop = Command("drop", " <nom_objet> : déposer un objet de l'inventaire dans la pièce actuelle", Actions.drop, 1)
         self.commands["drop"] = drop
+        use = Command("use", " <nom_objet> : utiliser un objet de l'inventaire", Actions.use, 1)
+        self.commands["use"] = use
+        charge = Command("charge", " <objet> : charger un objet magique", Actions.charge, 1)
+        self.commands["charge"] = charge
+        talk = Command("talk", " <nom_pnj> : parler à un personnage", Actions.talk, 1)
+        self.commands["talk"] = talk
+        rest = Command("rest", "permet de récupérer de l'endurance", Actions.rest, 0)
+        self.commands["rest"] = rest
         
         # Setup rooms
 
@@ -69,7 +81,9 @@ class Game:
 
         # Place some items in rooms
         forest.inventory["Décoction de souci"] = {"description": "Guérit de 60PV en une minute","weight": 0.5}
+        forest.inventory["Potion de sang de chevreuil"] = {"description":"Accroît l'endurance et sa régénération","weight":0.3}
         cave.inventory["kit de crochetage"] = {"description": "vous permettra d'ouvrir tout un tas de coffres et de vous incruster dans des reserves d'équipement ou de nourriture","weight": 0.1}
+        tower_top.inventory["beamer"] = Beamer()
 
         # Setup player and starting room
 
@@ -81,6 +95,12 @@ class Game:
         # Setup 'back' command
         back = Command("back", " : revenir à la pièce précédente visitée", Actions.back, 0)
         self.commands["back"] = back
+
+        # Création d'un PNJ 
+        gandalf = Character("Gandalf", "un magicien blanc", forest, ["Je suis Gandalf", "Abracadabra !"])
+        # Ajout du PNJ dans la pièce
+        forest.characters[gandalf.name] = gandalf
+
     # Play the game
     def play(self):
         self.setup()
@@ -111,8 +131,21 @@ class Game:
         # If the command is recognized, execute it
         else:
             command = self.commands[command_word]
-            command.action(self, list_of_words, command.number_of_parameters)
+            success = command.action(self, list_of_words, command.number_of_parameters)
+            
+            if success and command_word != "talk":
+                # Ton bloc de mouvement tel quel :
+                all_characters = []
+                for room in self.rooms:
+                    for char in room.characters.values():
+                        all_characters.append(char)
 
+                for char in all_characters:
+                    old_room_name = char.current_room.name
+                    if char.move():
+                        if DEBUG:
+                            print(f"DEBUG: {char.name} s'est déplacé de {old_room_name} vers {char.current_room.name}")
+        
     # Print the welcome message
     def print_welcome(self):
         print(f"\nBienvenue {self.player.name} dans ce jeu d'aventure !")

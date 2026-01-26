@@ -16,6 +16,8 @@ MSG0 = "\nLa commande '{command_word}' ne prend pas de paramètre.\n"
 # The MSG1 variable is used when the command takes 1 parameter.
 MSG1 = "\nLa commande '{command_word}' prend 1 seul paramètre.\n"
 
+from item import Beamer
+
 class Actions:
 
     def go(game, list_of_words, number_of_parameters):
@@ -158,9 +160,6 @@ class Actions:
         print()
         return True
         
-    def back(game, list_of_words, number_of_parameters):
-        """
-        Retourne à la pièce précédente visitée par le joueur.
 
     def back(game, list_of_words, number_of_parameters):
         """
@@ -295,4 +294,101 @@ class Actions:
         del player.inventory[item_name]
 
         print(f"\nVous avez déposé '{item_name}' dans la pièce.\n")
+        return True
+
+    def use(game, list_of_words, number_of_parameters):
+        l = len(list_of_words)
+
+        # Vérifie si le joueur a précisé un objet
+        if l < number_of_parameters + 1:
+            print(MSG1.format(command_word=list_of_words[0]))
+            return False
+
+        # Récupére le nom de l'objet
+        item_name = " ".join(list_of_words[1:]).strip()
+        player = game.player
+
+        # Vérifie si l'objet est dans l'inventaire
+        if item_name not in player.inventory:
+            print(f"\nVous n'avez pas de '{item_name}' sur vous.\n")
+            return False
+
+        # Gérer l'utilisation de l'objet
+        if item_name == "Potion de sang de chevreuil":
+            # On regagne 60 points d'endurance
+            gain = 100
+            player.stamina = min(100, player.stamina + gain)
+            
+            # Retirer l'objet après usage 
+            del player.inventory[item_name]
+            
+            print(f"\nVous buvez la {item_name}. Vous vous sentez beaucoup mieux !")
+            print(f"Endurance actuelle : {round(player.stamina, 1)}%\n")
+            return True
+        
+        elif item_name == "beamer":
+            item = player.inventory[item_name]
+            if isinstance(item, Beamer):
+                resultat = item.use(player)
+                print(resultat)
+                return True
+            else:
+                print("\nCet objet ressemble à un beamer mais ne fonctionne pas.\n")
+                return False
+
+        # Si l'objet n'est pas utilisable
+        else:
+            print(f"\nL'objet '{item_name}' ne peut pas être utilisé de cette façon.\n")
+            return False
+    
+    def charge(game, list_of_words, number_of_parameters):
+        # ... (vérification standard des paramètres) ...
+        item_name = list_of_words[1].lower()
+        player = game.player
+
+        # On cherche l'objet 'beamer' dans l'inventaire
+        item = player.inventory.get("beamer") # On suppose que la clé est 'beamer'
+        
+        if isinstance(item, Beamer):
+            print(item.charge(player.current_room))
+            return True
+        else:
+            print("\nVous n'avez aucun objet pouvant être chargé.\n")
+            return False
+    
+    def talk(game, list_of_words, number_of_parameters):
+        if len(list_of_words) < 2:
+            print("\nÀ qui voulez-vous parler ?\n")
+            return False
+
+        pnj_name = list_of_words[1]
+        room = game.player.current_room
+
+        # On cherche le PNJ dans la pièce actuelle
+        target = None
+        for name in room.characters:
+            if name.lower() == pnj_name.lower():
+                target = room.characters[name]
+                break
+
+        if target:
+            print(f"\n{target.name} vous dit : '{target.get_msg()}'\n")
+            return True
+        else:
+            print(f"\nIl n'y a personne nommé '{pnj_name}' ici.\n")
+            return False
+    
+    def rest(game, list_of_words, number_of_parameters):
+        player = game.player
+        recovery = 5
+        
+        if player.stamina >= 100:
+            print("\nVous êtes déjà en pleine forme ! Pas besoin de vous reposer.\n")
+            return False 
+        
+        player.stamina += recovery
+        if player.stamina > 100:
+            player.stamina = 100
+            
+        print(f"\nVous vous reposez un instant... Votre endurance est maintenant à {player.stamina}%.\n")
         return True
