@@ -14,3 +14,7 @@ Il y a pour le moment 5 modules contenant chacun une classe.
 - `player.py` / `Player` : le joueur ;
 - `command.py` / `Command` : les consignes données par le joueur ;
 - `actions.py` / `Action` : les interactions entre .
+
+
+https://github.com/user-attachments/assets/3047e37a-71b2-47f4-b330-149d3f4677bf
+
