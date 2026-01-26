@@ -77,6 +77,12 @@ class Actions:
                 print(f"\nDirection '{direction}' non reconnue.\n")
                 return False
 
+        next_room = player.current_room.exits.get(dir_normalize)
+        
+        if next_room and getattr(next_room, 'locked', False):
+            print(f"\nLa porte vers {next_room.name} est verrouillée. Il vous faut une clé ou utiliser 'picklock'.\n")
+            return False
+
         # Move the player using the canonical single-letter direction.
         player.move(dir_normalize)
         return True
@@ -266,7 +272,7 @@ class Actions:
         del room.inventory[item_name]
 
         print(f"\nVous avez pris '{item_name}'.\n")
-        player.quest_manager.check_item_objectives(item_name)
+        player.quest_manager.check_action_objectives("prendre", item_name)
         return True
 
     @staticmethod
@@ -382,11 +388,13 @@ class Actions:
                 break
 
         if target:
-            print(f"\n{target.name} vous dit : '{target.get_msg()}'\n")
+            print(f"\n{target.name} vous dit : '{target.get_msg(game.player)}'\n")
             return True
         else:
             print(f"\nIl n'y a personne nommé '{pnj_name}' ici.\n")
             return False
+        
+
 
     @staticmethod
     def rest(game, list_of_words, number_of_parameters):
@@ -597,3 +605,54 @@ class Actions:
         # Show all rewards
         game.player.show_rewards()
         return True
+
+    @staticmethod
+    def picklock(game, list_of_words, number_of_parameters):
+        target = list_of_words[1] # "porte" ou "coffre"
+        player = game.player
+        room = player.current_room
+        
+        # Simulation d'un mini-jeu de crochetage
+        difficulty = 5 # Exemple pour Beikovetz
+        if player.lockpicking_level >= difficulty:
+            print(f"Succès ! Vous avez ouvert le {target}.")
+            # Déverrouiller la pièce ou le coffre
+            return True
+        else:
+            print("Votre niveau est trop faible. Vous cassez un crochet.")
+            return False
+
+    @staticmethod
+    def steal(game, list_of_words, number_of_parameters):
+        player = game.player
+        if len(list_of_words) < 2:
+            print("\nQui voulez-vous détrousser ?\n")
+            return False
+
+        target_name = list_of_words[1].lower()
+        room = player.current_room
+        
+        target = room.characters.get(target_name) 
+        if not target:
+            print(f"\nIl n'y a pas de '{target_name}' ici.\n")
+            return False
+
+        if player.stamina < 10:
+            print("\nVous êtes trop fatigué pour tenter un vol.\n")
+            return False
+        
+        player.stamina -= 10
+        
+        # Calcul de réussite (Agilité vs Difficulté du PNJ)
+        import random
+        success_chance = player.agility * 10 # 5 d'agilité = 50% de chance
+        
+        if random.randint(1, 100) <= success_chance:
+            loot = 20 
+            player.groschens += loot
+            print(f"\n[SUCCÈS] Vous subtilisez discrètement {loot} groschens à {target.name} !")
+            print(f"Endurance restante : {player.stamina}%\n")
+            return True
+        else:
+            print(f"\n[ÉCHEC] {target.name} vous a repéré ! 'Au voleur !'\n")
+            return False

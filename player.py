@@ -51,6 +51,12 @@ class Player():
         self.inventory = {}
         self.max_weight = 20.0 
         self.stamina = 100.0
+        self.groschens = 15  # système monétaire
+        # Caractéristiques du joueur
+        self.lockpicking_level = 1
+        self.agility = 3
+        self.has_lockpick = True
+        
     
     # Define the move method.
     def move(self, direction):

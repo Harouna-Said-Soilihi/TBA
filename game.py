@@ -51,7 +51,9 @@ class Game:
         self.commands["quest"] = Command("quest", " <titre> : détails d'une quête", Actions.quest, 1)
         self.commands["activate"] = Command("activate", " <titre> : activer une quête", Actions.activate, 1)
         self.commands["rewards"] = Command("rewards", " : afficher vos récompenses", Actions.rewards, 0)
-        
+        self.commands["picklock"] = Command("picklock", " <direction> : tenter de crocheter une porte", Actions.picklock, 1)
+        self.commands["steal"] = Command("steal", " <nom_pnj> <nom_objet> : tenter de voler un objet à un PNJ", Actions.steal, 2)
+
         # Setup rooms
 
         forest = Room("Forest", "une forêt enchantée. Vous entendez une brise légère à travers la cime des arbres.")
@@ -73,9 +75,18 @@ class Game:
         tower_top = Room("Tower-Top", "au sommet de la tour, vue à couper le souffle sur le royaume.")
         self.rooms.append(tower_top)
 
+        # Additional rooms for quests
+        city = Room("City", "une ville médiévale animée. Les marchands crient et les pavés résonnent sous les pas.")
+        self.rooms.append(city)
+        taverne_rdc = Room("Taverne des Toussaints", "L'ambiance est bruyante. Un escalier monte et une porte mène à la cave.")
+        self.rooms.append(taverne_rdc)
+        chambre_beikovetz = Room("Chambre du Tavernier", "Beikovetz dort ici. Ses clés sont peut-être sur la table de nuit.")
+        self.rooms.append(chambre_beikovetz)
+        cave_beikovetz = Room("Cave de Beikovetz", "C'est sombre et humide. Des coffres sont entreposés ici.")
+        self.rooms.append(cave_beikovetz)
         # Create exits for rooms
 
-        forest.exits = {"N" : cave, "E" : None, "S" : castle, "O" : None, "U": None, "D": None}
+        forest.exits = {"N" : cave, "E" : city, "S" : castle, "O" : None, "U": None, "D": None}
         tower.exits = {"N" : cottage, "E" : None, "S" : None, "O" : forest, "U": tower_top, "D": None}
         cave.exits = {"N" : None, "E" : cottage, "S" : forest, "O" : None, "U": None, "D": None}
         cottage.exits = {"N" : None, "E" : None, "S" : tower, "O" : cave, "U": None, "D": basement}
@@ -83,12 +94,20 @@ class Game:
         castle.exits = {"N" : forest, "E" : swamp, "S" : None, "O" : None, "U": None, "D": None}
         basement.exits = {"N": None, "E": None, "S": None, "O": None, "U": cottage, "D": None}
         tower_top.exits = {"N": None, "E": None, "S": None, "O": None, "U": None, "D": tower}
+        city.exits = {"O": forest, "E": taverne_rdc}
+        taverne_rdc.exits = {"U": chambre_beikovetz, "D": cave_beikovetz, "O": city}
+        chambre_beikovetz.exits = {"D": taverne_rdc}
+        cave_beikovetz.exits = {"U": taverne_rdc}
 
         # Place some items in rooms
         forest.inventory["Décoction de souci"] = {"description": "Guérit de 60PV en une minute","weight": 0.5}
         forest.inventory["Potion de sang de chevreuil"] = {"description":"Accroît l'endurance et sa régénération","weight":0.3}
         cave.inventory["kit de crochetage"] = {"description": "vous permettra d'ouvrir tout un tas de coffres et de vous incruster dans des reserves d'équipement ou de nourriture","weight": 0.1}
         tower_top.inventory["beamer"] = Beamer()
+        #Placement des objets de quête
+        cave_beikovetz.inventory["Robe de mariage tachée"] = {"description": "Une robe de grande valeur, preuve du vol.", "weight": 1.0}
+        cave_beikovetz.inventory["Vieille statuette"] = {"description": "Une statuette peinte très ancienne.", "weight": 0.5}
+        swamp.inventory["Boussole en argent"] = {"description": "Une boussole en argent finement ciselée.", "weight": 0.2}
 
         # Setup player and starting room
 
@@ -103,18 +122,34 @@ class Game:
         back = Command("back", " : revenir à la pièce précédente visitée", Actions.back, 0)
         self.commands["back"] = back
 
+        #Ajout des propriétés de verrouillage
+        # On définit que la cave est difficile à ouvrir
+        cave_beikovetz.locked = True
+        cave_beikovetz.difficulty = 2 # Nécessite lockpicking_level 2 ou une clé
+
         # Création d'un PNJ 
         gandalf = Character("Gandalf", "un magicien blanc", forest, ["Je suis Gandalf", "Abracadabra !"])
         # Ajout du PNJ dans la pièce
         forest.characters[gandalf.name] = gandalf
+        zigfried = Character("Ziegfried", "Lord de la Destruction", tower_top, ["Seuls les forts montent.", "Préparez-vous à périr !"])
+        tower_top.characters["ziegfried"] = zigfried
+        zigfried.hp = 500
+        germain = Character("Germain", "Un homme barbu aux vêtements exotiques.", taverne_rdc, ["Ach ! Vous me semblez être un honnête voyageur.", "Le climat ici est terrible pour mes articulations."])
+        germain.quest_stage = 0  
+        germain.inventory = {"Bourse en soie": {"description": "Une bourse luxueuse", "weight": 0.1}} # Note : j'ai mis un dict pour correspondre à ton système d'inventaire
+        taverne_rdc.characters["germain"] = germain
 
     def _setup_quests(self):
             """Initialize all quests."""
-
+            relique_germain = Quest(
+            "La Boussole de Germain",
+            "parler à Germain pour commencer cette quête.",
+            "Retrouver la boussole en argent perdue par Germain dans le marécage."
+            "recompense: 100 groschens",
+            )
             # Add quests to player's quest manager
-            self.player.quest_manager.add_quest(exploration_quest)
-            self.player.quest_manager.add_quest(travel_quest)
-            self.player.quest_manager.add_quest(discovery_quest)
+            self.player.quest_manager.add_quest(relique_germain)
+            
 
     # Play the game
     def play(self):

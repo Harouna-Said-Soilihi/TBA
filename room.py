@@ -48,6 +48,9 @@ class Room:
         self.exits = {}
         self.inventory = {}
         self.characters = {}
+        self.containers = {} 
+        self.locked = False
+        self.difficulty = 0 
 
     # Define the get_exit method.
     def get_exit(self, direction):

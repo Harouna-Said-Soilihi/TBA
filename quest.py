@@ -648,7 +648,7 @@ class QuestManager:
         return self.quests
 
 
-    def get_quest_by_title(self, title):
+    def get_quest(self, title):
         """
         Get a quest by its title.
         
